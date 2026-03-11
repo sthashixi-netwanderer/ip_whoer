@@ -22,19 +22,19 @@ A lightweight Node.js package that fetches your public IP information from [whoe
 Since the package is hosted on GitHub, you can install it directly using your GitHub username and repository name:
 
 ```bash
-npm install yourusername/ip_whoer
+npm install sthashixi-netwanderer/ip_whoer
 ```
 
 Or, using the full GitHub URL:
 
 ```bash
-npm install github:yourusername/ip_whoer
+npm install github:sthashixi-netwanderer/ip_whoer
 ```
 
 To install it globally (which allows you to use the `ip-whoer` CLI command from anywhere):
 
 ```bash
-npm install -g yourusername/ip_whoer
+npm install -g sthashixi-netwanderer/ip_whoer
 ```
 
 ## Usage
