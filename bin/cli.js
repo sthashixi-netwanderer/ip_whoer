@@ -6,7 +6,12 @@ const { getIpInfo } = require("../src/index");
     try {
         console.log("\n🌐  Fetching IP info from whoer.to …\n");
 
+        const start = performance.now();
         const info = await getIpInfo();
+        const elapsed = (performance.now() - start).toFixed(0);
+        const elapsedDisplay = elapsed >= 1000
+            ? `${(elapsed / 1000).toFixed(2)}s`
+            : `${elapsed}ms`;
 
         const rows = [
             ["IP Address", info.ip],
@@ -29,7 +34,7 @@ const { getIpInfo } = require("../src/index");
         }
         console.log("─".repeat(labelWidth + 50));
 
-        console.log("\n✅  Done.\n");
+        console.log(`\n✅  Done. (fetched in ${elapsedDisplay})\n`);
     } catch (err) {
         console.error("❌  Failed to fetch IP info:", err.message);
         process.exit(1);
