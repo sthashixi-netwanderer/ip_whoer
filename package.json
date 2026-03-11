@@ -1,0 +1,28 @@
+{
+  "name": "ip_whoer",
+  "version": "1.0.0",
+  "description": "Fetch public IP info (address, country, ISP, DNS, timezone, etc.) from whoer.to",
+  "main": "src/index.js",
+  "bin": {
+    "ip-whoer": "bin/cli.js"
+  },
+  "scripts": {
+    "start": "node example.js",
+    "cli": "node bin/cli.js"
+  },
+  "keywords": [
+    "ip",
+    "whoer",
+    "geolocation",
+    "public-ip",
+    "isp",
+    "dns",
+    "timezone"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.0",
+    "cheerio": "^1.0.0"
+  }
+}
