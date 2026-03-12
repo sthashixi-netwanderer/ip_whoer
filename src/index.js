@@ -3,6 +3,35 @@ const cheerio = require("cheerio");
 
 const WHOER_URL = "https://whoer.to/";
 
+/** Replicates whoer.to's client-side detectdns() logic */
+async function detectDns() {
+    // Generate a random 32-char hex subdomain (same as the browser-side JS does)
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    const rand = Array.from({ length: 32 }, () =>
+        chars.charAt(Math.floor(Math.random() * chars.length))
+    ).join("");
+
+    // Step 1: ask ip-api.com's EDNS endpoint which DNS resolver we're using
+    const ednsUrl = `https://${rand}.edns.ip-api.com/json`;
+    const { data: edns } = await axios.get(ednsUrl, { timeout: 8000 });
+    const dnsIp = edns && edns.dns && edns.dns.ip;
+    if (!dnsIp) return "N/A";
+
+    // Step 2: ask whoer.to to turn the DNS IP into a labelled string
+    const { data: raw } = await axios.get(`https://whoer.to/ip2co?ip=${dnsIp}`, {
+        timeout: 8000,
+        headers: { Referer: WHOER_URL },
+    });
+
+    // Response is JSONP: ip2co({"output":"<a ...>IP</a> <img .../> Country"})
+    const jsonpMatch = String(raw).match(/ip2co\((\{.*\})\)/s);
+    if (!jsonpMatch) return dnsIp;
+    const payload = JSON.parse(jsonpMatch[1]);
+    // Strip HTML tags to get plain text e.g. "74.63.17.236  United States"
+    const plain = (payload.output || dnsIp).replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+    return plain;
+}
+
 /**
  * Fetches public IP information from whoer.to
  *
@@ -96,13 +125,13 @@ async function getIpInfo() {
     // --- Timezone (label is "zone") ---
     const timezone = getRowValue("zone");
 
-    // --- DNS Server ---
-    // DNS is loaded via JS (detectdns()), so static HTML won't have the value.
-    // We still attempt to read whatever is in the #dns span, stripped of scripts.
-    let dns = "";
-    const dnsEl = $("#dns").clone();
-    dnsEl.find("script, noscript").remove();
-    dns = dnsEl.text().trim() || "N/A";
+    // --- DNS Server (replicate the browser-side detectdns() call) ---
+    let dns = "N/A";
+    try {
+        dns = await detectDns();
+    } catch (_) {
+        // non-fatal — DNS detection can fail silently
+    }
 
     return {
         ip,
